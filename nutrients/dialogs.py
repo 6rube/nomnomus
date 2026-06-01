@@ -1,4 +1,5 @@
 import threading
+from pathlib import Path
 
 import gi
 
@@ -14,7 +15,7 @@ except (ImportError, ValueError):
     Gst = None
 
 from .barcodes import BarcodeLookupError, fetch_product
-from .icons import choose_icon
+from .icons import icon_button
 from .models import DEFAULT_SETTINGS, calories_from_macros
 
 
@@ -35,6 +36,7 @@ class AddEntryDialog(Adw.Dialog):
         self.day = day
         self.on_save = on_save
         self.entry = entry
+        self.scanned_food = None
 
         self.set_title("Edit Food" if entry else "Add Food")
         self.set_content_width(420)
@@ -55,9 +57,7 @@ class AddEntryDialog(Adw.Dialog):
         header.pack_end(save)
 
         if not entry:
-            scan = Gtk.Button(
-                icon_name=choose_icon("qr-code-symbolic", "camera-photo-symbolic")
-            )
+            scan = icon_button("camera-photo-symbolic", "Scan")
             scan.set_tooltip_text("Scan food barcode")
             scan.connect("clicked", self._show_scanner)
             header.pack_end(scan)
@@ -79,6 +79,11 @@ class AddEntryDialog(Adw.Dialog):
         self.scan_note.add_css_class("dim-label")
         self.scan_note.set_visible(False)
         form.append(self.scan_note)
+
+        self.amount = self._spin("Amount eaten (g)", 0, 10000, 1)
+        self.amount.set_visible(False)
+        self.amount.spin.connect("value-changed", self._update_scanned_amount)
+        form.append(self.amount)
 
         self.protein = self._spin("Protein (g)", 0, 500, 1)
         self.carbs = self._spin("Carbs (g)", 0, 800, 1)
@@ -107,15 +112,26 @@ class AddEntryDialog(Adw.Dialog):
         BarcodeScannerDialog(self, self._apply_scanned_food)
 
     def _apply_scanned_food(self, food):
+        self.scanned_food = food
         self.name.set_text(food.name)
-        self.protein.spin.set_value(food.protein)
-        self.carbs.spin.set_value(food.carbs)
-        self.fat.spin.set_value(food.fat)
+        self.amount.set_visible(True)
+        self.amount.spin.set_value(food.basis_quantity)
+        self._update_scanned_amount()
         self.scan_note.set_label(
-            f"Scanned {food.barcode}. Loaded values for {food.basis}; "
-            "adjust them to match the amount eaten."
+            f"Scanned {food.barcode}. Nutrition is calculated from {food.basis}."
         )
         self.scan_note.set_visible(True)
+
+    def _update_scanned_amount(self, _spin=None):
+        if not self.scanned_food:
+            return
+
+        protein, carbs, fat = self.scanned_food.macros_for_amount(
+            self.amount.spin.get_value()
+        )
+        self.protein.spin.set_value(protein)
+        self.carbs.spin.set_value(carbs)
+        self.fat.spin.set_value(fat)
 
     def _spin(self, title, lower, upper, step):
         row = Adw.ActionRow(title=title)
@@ -158,6 +174,10 @@ class BarcodeScannerDialog(Adw.Dialog):
         super().__init__()
         self.on_scanned = on_scanned
         self.pipeline = None
+        self.camera_bus = None
+        self.camera_bus_handler = None
+        self.camera_pipelines = []
+        self.camera_pipeline_index = 0
         self.lookup_in_progress = False
         self.is_closed = False
 
@@ -240,27 +260,68 @@ class BarcodeScannerDialog(Adw.Dialog):
             self.status.set_label("Camera scanning is not installed. Enter a barcode below.")
             return
 
-        try:
-            Gst.init(None)
-            self.pipeline = Gst.parse_launch(
-                "autovideosrc ! videoconvert ! "
-                "zbar name=barcode message=true cache=true ! videoconvert ! "
-                "gtk4paintablesink name=preview"
+        Gst.init(None)
+        self.camera_pipelines = self._camera_pipeline_descriptions()
+        self.camera_pipeline_index = 0
+        self._start_next_camera()
+
+    def _camera_pipeline_descriptions(self):
+        branches = (
+            " ! tee name=stream "
+            "stream. ! queue leaky=downstream max-size-buffers=1 "
+            "max-size-bytes=0 max-size-time=0 "
+            "! gtk4paintablesink name=preview sync=false "
+            "stream. ! queue leaky=downstream max-size-buffers=1 "
+            "max-size-bytes=0 max-size-time=0 "
+            "! videorate drop-only=true max-rate=12 ! videoscale "
+            "! video/x-raw,width=960,height=540 "
+            "! zbar name=barcode message=true cache=true ! fakesink sync=false"
+        )
+        pipelines = []
+
+        if Path("/dev/binder").exists() and Gst.ElementFactory.find("droidcamsrc"):
+            pipelines.append(
+                "droidcamsrc name=camera focus-mode=continuous-normal scene-mode=barcode "
+                "camera.vfsrc ! video/x-raw,width=1280,height=720,framerate=30/1"
+                + branches
             )
+        pipelines.append(
+            "autovideosrc ! videoconvert ! videoscale "
+            "! video/x-raw,width=1280,height=720,framerate=30/1" + branches
+        )
+        return pipelines
+
+    def _start_next_camera(self, last_error=None):
+        if self.is_closed:
+            return
+
+        if self.camera_pipeline_index >= len(self.camera_pipelines):
+            message = f" ({last_error})" if last_error else ""
+            self.status.set_label(f"Camera unavailable{message}. Enter a barcode below.")
+            return
+
+        description = self.camera_pipelines[self.camera_pipeline_index]
+        self.camera_pipeline_index += 1
+        try:
+            self.pipeline = Gst.parse_launch(description)
             sink = self.pipeline.get_by_name("preview")
             self.preview.set_paintable(sink.get_property("paintable"))
 
             bus = self.pipeline.get_bus()
             bus.add_signal_watch()
-            bus.connect("message", self._on_bus_message)
+            self.camera_bus = bus
+            self.camera_bus_handler = bus.connect("message", self._on_bus_message)
             result = self.pipeline.set_state(Gst.State.PLAYING)
             if result == Gst.StateChangeReturn.FAILURE:
                 raise RuntimeError("camera pipeline could not start")
         except (GLib.Error, RuntimeError) as error:
             self._stop_camera()
-            self.status.set_label(f"Camera unavailable ({error}). Enter a barcode below.")
+            self._start_next_camera(error)
 
-    def _on_bus_message(self, _bus, message):
+    def _on_bus_message(self, bus, message):
+        if bus != self.camera_bus:
+            return
+
         if message.type == Gst.MessageType.ELEMENT:
             structure = message.get_structure()
             if structure and structure.get_name() == "barcode":
@@ -268,7 +329,7 @@ class BarcodeScannerDialog(Adw.Dialog):
         elif message.type == Gst.MessageType.ERROR:
             error, _debug = message.parse_error()
             self._stop_camera()
-            self.status.set_label(f"Camera unavailable ({error.message}). Enter a barcode below.")
+            self._start_next_camera(error.message)
 
     def _lookup_entered_barcode(self, _widget):
         self._lookup(self.barcode.get_text())
@@ -319,6 +380,12 @@ class BarcodeScannerDialog(Adw.Dialog):
         return GLib.SOURCE_REMOVE
 
     def _stop_camera(self):
+        if self.camera_bus:
+            if self.camera_bus_handler:
+                self.camera_bus.disconnect(self.camera_bus_handler)
+            self.camera_bus.remove_signal_watch()
+            self.camera_bus = None
+            self.camera_bus_handler = None
         if self.pipeline:
             self.pipeline.set_state(Gst.State.NULL)
             self.pipeline = None

@@ -9,7 +9,7 @@ from gi.repository import Adw, Gtk  # noqa: E402
 
 from . import APP_NAME
 from .dialogs import AddEntryDialog, GoalsDialog
-from .icons import choose_icon
+from .icons import choose_icon, icon_button
 from .overview import MonthOverviewDialog
 from .store import Store
 from .widgets import EntryRow, NutrientBar
@@ -41,13 +41,12 @@ class Window(Adw.ApplicationWindow):
         next_button.connect("clicked", self._change_day, 1)
         header.pack_start(next_button)
 
-        overview_button = Gtk.Button()
-        overview_button.set_icon_name("appointment-soon-symbolic")
+        overview_button = icon_button("x-office-calendar-symbolic", "Month")
         overview_button.set_tooltip_text("Month overview")
         overview_button.connect("clicked", self._show_month_overview)
         header.pack_end(overview_button)
 
-        goals_button = Gtk.Button(icon_name="emblem-system-symbolic")
+        goals_button = icon_button("preferences-system-symbolic", "Goals")
         goals_button.set_tooltip_text("Daily goals")
         goals_button.connect("clicked", self._show_goals)
         header.pack_end(goals_button)

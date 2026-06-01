@@ -32,9 +32,11 @@ class BarcodeTest(unittest.TestCase):
 
         self.assertEqual(food.name, "Hazelnut spread")
         self.assertEqual(food.basis, "15 g")
+        self.assertEqual(food.basis_quantity, 15)
         self.assertEqual(food.protein, 0.945)
         self.assertEqual(food.carbs, 8.64)
         self.assertEqual(food.fat, 4.635)
+        self.assertEqual(food.macros_for_amount(30), (1.89, 17.28, 9.27))
 
     def test_100g_values_are_used_without_a_serving(self):
         food = product_from_response(
@@ -54,9 +56,11 @@ class BarcodeTest(unittest.TestCase):
 
         self.assertEqual(food.name, "Example")
         self.assertEqual(food.basis, "100 g")
+        self.assertEqual(food.basis_quantity, 100)
         self.assertEqual(food.protein, 10)
         self.assertEqual(food.carbs, 20)
         self.assertEqual(food.fat, 3)
+        self.assertEqual(food.macros_for_amount(250), (25, 50, 7.5))
 
     def test_unknown_products_are_reported(self):
         with self.assertRaises(ProductNotFoundError):

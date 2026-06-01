@@ -6,6 +6,8 @@ gi.require_version("Pango", "1.0")
 
 from gi.repository import Adw, GObject, Gtk, Pango  # noqa: E402,F401
 
+from .icons import choose_icon
+
 
 class NutrientBar(Gtk.Box):
     def __init__(self, label, unit):
@@ -66,12 +68,16 @@ class EntryRow(Gtk.ListBoxRow):
         text.set_hexpand(True)
 
         edit_button = Gtk.Button()
-        edit_button.set_icon_name("document-edit-symbolic")
+        edit_button.set_icon_name(
+            choose_icon("edit-symbolic", "document-edit-symbolic", "document-edit")
+        )
         edit_button.add_css_class("flat")
         edit_button.set_tooltip_text("Edit entry")
         edit_button.connect("clicked", self._on_edit_clicked)
 
-        delete_button = Gtk.Button(icon_name="user-trash-symbolic")
+        delete_button = Gtk.Button(
+            icon_name=choose_icon("user-trash-symbolic", "edit-delete-symbolic")
+        )
         delete_button.add_css_class("flat")
         delete_button.set_tooltip_text("Delete entry")
         delete_button.connect("clicked", self._on_delete_clicked)

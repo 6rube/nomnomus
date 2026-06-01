@@ -26,6 +26,15 @@ class ScannedFood:
     carbs: float
     fat: float
     basis: str
+    basis_quantity: float
+
+    def macros_for_amount(self, amount):
+        factor = _number(amount) / self.basis_quantity
+        return (
+            self.protein * factor,
+            self.carbs * factor,
+            self.fat * factor,
+        )
 
 
 def normalize_barcode(barcode):
@@ -56,9 +65,11 @@ def product_from_response(barcode, response):
     if has_serving_values:
         suffix = "_serving"
         basis = product.get("serving_size") or f"{serving_quantity:g} g serving"
+        basis_quantity = serving_quantity
     else:
         suffix = "_100g"
         basis = "100 g"
+        basis_quantity = 100.0
 
     return ScannedFood(
         barcode=barcode,
@@ -67,6 +78,7 @@ def product_from_response(barcode, response):
         carbs=_number(nutriments.get(f"carbohydrates{suffix}")),
         fat=_number(nutriments.get(f"fat{suffix}")),
         basis=basis,
+        basis_quantity=basis_quantity,
     )
 
 
