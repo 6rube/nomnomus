@@ -20,7 +20,7 @@ A small Python GTK 4 / Libadwaita nutrient tracker made for narrow Linux phone s
 - `src/main.py` starts the app directly from a checkout.
 - `src/nutrients/` contains the Python application package.
 - `data/` contains desktop integration assets, with folders reserved for icons and services.
-- `debian/` is reserved for Debian package metadata.
+- `debian/` contains Debian package metadata and build rules.
 - `pyproject.toml` contains Python packaging metadata and the `nutrients` command.
 
 ## Run
@@ -56,6 +56,20 @@ On Fedora:
 ```sh
 sudo dnf install python3-gobject gtk4 libadwaita python3-gstreamer1 \
   gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-plugin-gtk4
+```
+
+## Debian package
+
+Build a local Debian package with:
+
+```sh
+debian/rules clean binary DEB_DESTDIR=dist
+```
+
+The package is written to `dist/nutrients_0.1.0_all.deb`. Install it with:
+
+```sh
+sudo apt install ./dist/nutrients_0.1.0_all.deb
 ```
 
 ## Notes

@@ -15,6 +15,12 @@ env/
 .coverage
 htmlcov/
 
+# Debian package output
+dist/
+/debian/files
+/debian/*.substvars
+/debian/nutrients/
+
 # Editor and OS-local files
 .idea/
 .vscode/
