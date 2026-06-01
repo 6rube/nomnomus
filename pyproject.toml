@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nutrients"
+version = "0.1.0"
+description = "A small GTK 4 nutrient tracker for narrow Linux phone screens"
+readme = "README.md"
+license = { file = "LICENCE" }
+requires-python = ">=3.10"
+authors = [
+  { name = "Nutrients contributors" },
+]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+]
+
+[project.scripts]
+nutrients = "nutrients.app:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

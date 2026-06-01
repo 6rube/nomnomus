@@ -17,29 +17,30 @@ A small Python GTK 4 / Libadwaita nutrient tracker made for narrow Linux phone s
 
 ## Project layout
 
-- `main.py` starts the app.
-- `nutrients/app.py` wires up the Libadwaita application.
-- `nutrients/window.py` contains the main phone-sized window.
-- `nutrients/dialogs.py` contains the add-food and goal dialogs.
-- `nutrients/overview.py` contains the monthly heatmap.
-- `nutrients/analytics.py` calculates day and month stats.
-- `nutrients/widgets.py` contains reusable UI rows and progress bars.
-- `nutrients/barcodes.py` looks up scanned products in Open Food Facts.
-- `nutrients/store.py` handles local JSON persistence.
-- `nutrients/models.py` contains the data model and default goals.
+- `src/main.py` starts the app directly from a checkout.
+- `src/nutrients/` contains the Python application package.
+- `data/` contains desktop integration assets, with folders reserved for icons and services.
+- `debian/` is reserved for Debian package metadata.
+- `pyproject.toml` contains Python packaging metadata and the `nutrients` command.
 
 ## Run
 
 Install the GTK and Libadwaita Python bindings for your distro, then run:
 
 ```sh
-python3 main.py
+python3 src/main.py
 ```
 
 You can also launch it with:
 
 ```sh
-./run.sh
+./src/run.sh
+```
+
+To install the `nutrients` command from a checkout, run:
+
+```sh
+python3 -m pip install --user -e .
 ```
 
 On Debian, Ubuntu, or Mobian with apt packages, the dependencies are usually:
@@ -71,5 +72,6 @@ In the monthly overview, OK days are counted only from days where you logged foo
 The over/under totals compare your consumed monthly totals against the target days
 for that month: month-to-date for the current month, or the full month for past months.
 
-To add it to a phone launcher, copy `dev.local.NutrientTracker.desktop` into
-`~/.local/share/applications/`. The included file points at this workspace path.
+To add it to a phone launcher, install the `nutrients` command and copy
+`data/dev.local.NutrientTracker.desktop` into `~/.local/share/applications/`.
+The desktop file launches the installed command.
