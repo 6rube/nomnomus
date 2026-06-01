@@ -5,6 +5,7 @@ from nutrients.barcodes import (
     ProductNotFoundError,
     normalize_barcode,
     product_from_response,
+    products_from_search_response,
 )
 
 
@@ -69,6 +70,32 @@ class BarcodeTest(unittest.TestCase):
     def test_non_numeric_qr_codes_are_rejected(self):
         with self.assertRaises(BarcodeLookupError):
             normalize_barcode("https://example.com")
+
+    def test_search_results_are_parsed_and_invalid_products_are_skipped(self):
+        foods = products_from_search_response(
+            {
+                "hits": [
+                    {
+                        "code": "12345678",
+                        "product_name": "Example",
+                        "nutriments": {
+                            "proteins_100g": 10,
+                            "carbohydrates_100g": 20,
+                            "fat_100g": 3,
+                        },
+                    },
+                    {"code": "not-a-barcode", "product_name": "Invalid"},
+                ]
+            }
+        )
+
+        self.assertEqual(len(foods), 1)
+        self.assertEqual(foods[0].name, "Example")
+        self.assertEqual(foods[0].basis_quantity, 100)
+
+    def test_invalid_search_responses_are_reported(self):
+        with self.assertRaises(BarcodeLookupError):
+            products_from_search_response({"hits": None})
 
 
 if __name__ == "__main__":

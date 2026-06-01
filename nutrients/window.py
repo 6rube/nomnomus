@@ -5,7 +5,7 @@ import gi
 gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Adw, Gtk  # noqa: E402
+from gi.repository import Adw, Gtk
 
 from . import APP_NAME
 from .dialogs import AddEntryDialog, GoalsDialog
@@ -80,6 +80,7 @@ class Window(Adw.ApplicationWindow):
         }
         summary = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         summary.add_css_class("card")
+        summary.add_css_class("nutrient-summary")
         summary.set_margin_top(2)
         summary.set_margin_bottom(2)
         for bar in self.bars.values():

@@ -3,7 +3,7 @@ import gi
 gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Adw, Gio, GLib  # noqa: E402
+from gi.repository import Adw, Gio, GLib
 
 from . import APP_ID, APP_NAME
 from .styles import load_css

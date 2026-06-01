@@ -4,7 +4,7 @@ gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 gi.require_version("Pango", "1.0")
 
-from gi.repository import Adw, GObject, Gtk, Pango  # noqa: E402,F401
+from gi.repository import Adw, GObject, Gtk, Pango
 
 from .icons import choose_icon
 

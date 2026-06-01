@@ -3,7 +3,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
 
-from gi.repository import Gdk, Gtk  # noqa: E402
+from gi.repository import Gdk, Gtk
 
 
 CSS = """
@@ -18,6 +18,10 @@ CSS = """
   padding: 8px;
   border-radius: 8px;
   background: alpha(currentColor, 0.06);
+}
+
+.nutrient-summary {
+  padding: 12px;
 }
 
 .scanner-preview {

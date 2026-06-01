@@ -12,6 +12,7 @@ A small Python GTK 4 / Libadwaita nutrient tracker made for narrow Linux phone s
 - Previous and next day navigation
 - Food barcode scanning with an in-app camera preview
 - Adjustable amount eaten for scanned foods
+- Debounced Open Food Facts search when entering a food name
 - Local JSON storage in `$XDG_DATA_HOME/nutrient-tracker/data.json`
 
 ## Project layout
@@ -60,7 +61,8 @@ sudo dnf install python3-gobject gtk4 libadwaita python3-gstreamer1 \
 
 This is intentionally tiny and offline-first. It does not track micronutrients or sync data yet.
 
-Barcode lookup uses Open Food Facts and needs a network connection. Scanning needs
+Barcode lookup and manual name search use Open Food Facts and need a network
+connection. Name search starts after you stop typing for three seconds. Scanning needs
 GStreamer's `zbar`, `autovideosrc`, and `gtk4paintablesink` plugins. The scan screen
 also accepts a typed barcode when a camera is unavailable. On DroidMedia phones,
 the scanner requests continuous autofocus and the barcode camera scene preset.

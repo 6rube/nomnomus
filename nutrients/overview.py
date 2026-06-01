@@ -6,7 +6,7 @@ import gi
 gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Adw, Gtk  # noqa: E402
+from gi.repository import Adw, Gtk
 
 from .analytics import month_summary
 from .models import NUTRIENT_LABELS
