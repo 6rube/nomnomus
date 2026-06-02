@@ -5,9 +5,9 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 
-from nutrients.analytics import heat_class, month_summary
-from nutrients.models import DEFAULT_SETTINGS, calories_from_macros
-from nutrients.store import Store
+from nomnomus.analytics import heat_class, month_summary
+from nomnomus.models import DEFAULT_SETTINGS, calories_from_macros
+from nomnomus.store import Store
 
 
 class FakeStore:

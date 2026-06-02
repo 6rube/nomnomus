@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from nutrients.app import main
+from nomnomus.app import main
 
 
 if __name__ == "__main__":

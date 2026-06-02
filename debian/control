@@ -1,4 +1,4 @@
-Source: nutrients
+Source: nomnomus
 Section: utils
 Priority: optional
 Maintainer: 6rube <info@6rube.net>
@@ -6,12 +6,12 @@ Build-Depends: dpkg-dev (>= 1.22.0), python3 (>= 3.10)
 Standards-Version: 4.7.2
 Rules-Requires-Root: no
 
-Package: nutrients
+Package: nomnomus
 Architecture: all
 Depends: python3 (>= 3.10), python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1
 Recommends: gir1.2-gstreamer-1.0, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-gtk4, gstreamer1.0-tools
 Description: GTK nutrient tracker for narrow Linux phone screens
- Nutrients tracks daily calories, protein, carbohydrates, and fat in a
+ NomNomus tracks daily calories, protein, carbohydrates, and fat in a
  phone-sized GTK 4 and Libadwaita interface.
  .
  It supports editable goals, a monthly overview, Open Food Facts searches,

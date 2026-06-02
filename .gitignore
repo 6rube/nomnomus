@@ -19,7 +19,7 @@ htmlcov/
 dist/
 /debian/files
 /debian/*.substvars
-/debian/nutrients/
+/debian/nomnomus/
 
 # Editor and OS-local files
 .idea/

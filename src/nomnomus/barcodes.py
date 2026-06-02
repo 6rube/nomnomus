@@ -8,7 +8,7 @@ from urllib.request import Request, urlopen
 
 API_URL = "https://world.openfoodfacts.org/api/v2/product/{barcode}.json"
 SEARCH_URL = "https://search.openfoodfacts.org/search"
-USER_AGENT = "Nutrients/1.0 (local GTK nutrient tracker)"
+USER_AGENT = "NomNomus/1.0 (local GTK nutrient tracker)"
 
 
 class BarcodeLookupError(Exception):

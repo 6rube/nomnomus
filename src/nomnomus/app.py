@@ -10,7 +10,7 @@ from .styles import load_css
 from .window import Window
 
 
-class NutrientTracker(Adw.Application):
+class NomNomus(Adw.Application):
     def __init__(self):
         super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         GLib.set_application_name(APP_NAME)
@@ -24,5 +24,5 @@ class NutrientTracker(Adw.Application):
 
 
 def main():
-    app = NutrientTracker()
+    app = NomNomus()
     return app.run()

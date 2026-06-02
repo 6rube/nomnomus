@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-PACKAGE := nutrients
+PACKAGE := nomnomus
 PACKAGE_DIR := debian/$(PACKAGE)
 PYTHON_DIST_DIR := $(PACKAGE_DIR)/usr/lib/python3/dist-packages
 DOC_DIR := $(PACKAGE_DIR)/usr/share/doc/$(PACKAGE)
@@ -20,17 +20,17 @@ binary-arch:
 
 binary-indep: build
 	install -d $(PYTHON_DIST_DIR) $(PACKAGE_DIR)/usr/bin
-	cp -a src/nutrients $(PYTHON_DIST_DIR)/
+	cp -a src/nomnomus $(PYTHON_DIST_DIR)/
 	find $(PYTHON_DIST_DIR) -type d -name __pycache__ -prune -exec rm -rf {} +
 	find $(PYTHON_DIST_DIR) -type d -exec chmod 0755 {} +
 	find $(PYTHON_DIST_DIR) -type f -exec chmod 0644 {} +
-	install -D -m 0755 debian/nutrients-launcher $(PACKAGE_DIR)/usr/bin/nutrients
-	install -D -m 0644 data/dev.local.NutrientTracker.desktop \
-		$(PACKAGE_DIR)/usr/share/applications/dev.local.NutrientTracker.desktop
+	install -D -m 0755 debian/nomnomus-launcher $(PACKAGE_DIR)/usr/bin/nomnomus
+	install -D -m 0644 data/dev.local.NomNomus.desktop \
+		$(PACKAGE_DIR)/usr/share/applications/dev.local.NomNomus.desktop
 	install -D -m 0644 debian/copyright $(DOC_DIR)/copyright
 	install -D -m 0644 README.md $(DOC_DIR)/README.md
-	install -D -m 0644 debian/nutrients.1 $(PACKAGE_DIR)/usr/share/man/man1/nutrients.1
-	gzip -n -9 $(PACKAGE_DIR)/usr/share/man/man1/nutrients.1
+	install -D -m 0644 debian/nomnomus.1 $(PACKAGE_DIR)/usr/share/man/man1/nomnomus.1
+	gzip -n -9 $(PACKAGE_DIR)/usr/share/man/man1/nomnomus.1
 	install -D -m 0644 debian/changelog $(DOC_DIR)/changelog
 	gzip -n -9 $(DOC_DIR)/changelog
 	install -d $(PACKAGE_DIR)/DEBIAN $(DEB_DESTDIR)

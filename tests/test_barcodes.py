@@ -1,6 +1,6 @@
 import unittest
 
-from nutrients.barcodes import (
+from nomnomus.barcodes import (
     BarcodeLookupError,
     ProductNotFoundError,
     normalize_barcode,
