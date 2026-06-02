@@ -98,3 +98,5 @@ The desktop file launches the installed command.
 [Linuxphone Forum](https://linuxphone.io/)
 
 [Linuxphone Wiki](https://wiki.linuxphone.io/index.php?title=Main_Page)
+
+[Open Food Facts Website](https://world.openfoodfacts.org/)
