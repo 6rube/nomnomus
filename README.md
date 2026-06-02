@@ -1,4 +1,4 @@
-# Nutrients
+# NomNomus
 
 A small Python GTK 4 / Libadwaita nutrient tracker made for narrow Linux phone screens.
 
@@ -13,15 +13,15 @@ A small Python GTK 4 / Libadwaita nutrient tracker made for narrow Linux phone s
 - Food barcode scanning with an in-app camera preview
 - Adjustable amount eaten for scanned foods
 - Debounced Open Food Facts search when entering a food name
-- Local JSON storage in `$XDG_DATA_HOME/nutrient-tracker/data.json`
+- Local SQLite storage in `$XDG_DATA_HOME/nomnomus/data.sqlite3`
 
 ## Project layout
 
 - `src/main.py` starts the app directly from a checkout.
-- `src/nutrients/` contains the Python application package.
+- `src/nomnomus/` contains the Python application package.
 - `data/` contains desktop integration assets, with folders reserved for icons and services.
-- `debian/` contains Debian package metadata and build rules.
-- `pyproject.toml` contains Python packaging metadata and the `nutrients` command.
+- `debian/` is reserved for Debian package metadata.
+- `pyproject.toml` contains Python packaging metadata and the `nomnomus` command.
 
 ## Run
 
@@ -37,7 +37,7 @@ You can also launch it with:
 ./src/run.sh
 ```
 
-To install the `nutrients` command from a checkout, run:
+To install the `nomnomus` command from a checkout, run:
 
 ```sh
 python3 -m pip install --user -e .
@@ -58,26 +58,12 @@ sudo dnf install python3-gobject gtk4 libadwaita python3-gstreamer1 \
   gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-plugin-gtk4
 ```
 
-## Debian package
-
-Build a local Debian package with:
-
-```sh
-debian/rules clean binary DEB_DESTDIR=dist
-```
-
-The package is written to `dist/nutrients_0.1.0_all.deb`. Install it with:
-
-```sh
-sudo apt install ./dist/nutrients_0.1.0_all.deb
-```
-
 ## Notes
 
 This is intentionally tiny and offline-first. It does not track micronutrients or sync data yet.
 
 Barcode lookup and manual name search use Open Food Facts and need a network
-connection. Name search starts after you stop typing for three seconds. Scanning needs
+connection. Name search starts after you stop typing for one second. Scanning needs
 GStreamer's `zbar`, `autovideosrc`, and `gtk4paintablesink` plugins. The scan screen
 also accepts a typed barcode when a camera is unavailable. On DroidMedia phones,
 the scanner requests continuous autofocus and the barcode camera scene preset.
@@ -86,6 +72,6 @@ In the monthly overview, OK days are counted only from days where you logged foo
 The over/under totals compare your consumed monthly totals against the target days
 for that month: month-to-date for the current month, or the full month for past months.
 
-To add it to a phone launcher, install the `nutrients` command and copy
-`data/dev.local.NutrientTracker.desktop` into `~/.local/share/applications/`.
+To add it to a phone launcher, install the `nomnomus` command and copy
+`data/dev.local.NomNomus.desktop` into `~/.local/share/applications/`.
 The desktop file launches the installed command.
