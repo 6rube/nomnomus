@@ -10,6 +10,7 @@ A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones.
 - Editable goal range percentage for month tracking
 - Monthly heatmap overview
 - Food barcode scanning with an in-app camera preview
+- Food Data from https://world.openfoodfacts.org/
 - Local SQLite storage in `$XDG_DATA_HOME/nomnomus/data.sqlite3`
 
 ## Project layout
