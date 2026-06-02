@@ -73,5 +73,7 @@ The over/under totals compare your consumed monthly totals against the target da
 for that month: month-to-date for the current month, or the full month for past months.
 
 To add it to a phone launcher, install the `nomnomus` command and copy
-`data/dev.local.NomNomus.desktop` into `~/.local/share/applications/`.
+`data/dev.local.NomNomus.desktop` into `~/.local/share/applications/`. Copy
+`data/icons/dev.local.NomNomus.svg` into
+`~/.local/share/icons/hicolor/scalable/apps/` to install the launcher icon.
 The desktop file launches the installed command.

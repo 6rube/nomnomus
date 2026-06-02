@@ -27,6 +27,10 @@ binary-indep: build
 	install -D -m 0755 debian/nomnomus-launcher $(PACKAGE_DIR)/usr/bin/nomnomus
 	install -D -m 0644 data/dev.local.NomNomus.desktop \
 		$(PACKAGE_DIR)/usr/share/applications/dev.local.NomNomus.desktop
+	install -D -m 0644 data/icons/dev.local.NomNomus.svg \
+		$(PACKAGE_DIR)/usr/share/icons/hicolor/scalable/apps/dev.local.NomNomus.svg
+	install -D -m 0644 data/icons/dev.local.NomNomus.png \
+		$(PACKAGE_DIR)/usr/share/icons/hicolor/128x128/apps/dev.local.NomNomus.png
 	install -D -m 0644 debian/copyright $(DOC_DIR)/copyright
 	install -D -m 0644 README.md $(DOC_DIR)/README.md
 	install -D -m 0644 debian/nomnomus.1 $(PACKAGE_DIR)/usr/share/man/man1/nomnomus.1

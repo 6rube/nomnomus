@@ -3,5 +3,6 @@ nomnomus (0.1.0) unstable; urgency=medium
   * Initial Debian package.
   * Store application data in SQLite.
   * Rename the application to NomNomus.
+  * Install the NomNomus application icon.
 
  -- 6rube <info@6rube.net>  Mon, 01 Jun 2026 12:00:00 +0200
