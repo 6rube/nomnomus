@@ -1,18 +1,15 @@
 # NomNomus
 
-A small Python GTK 4 / Libadwaita nutrient tracker made for narrow Linux phone screens.
+A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones.
+
+![Alt Text](./screenshots/Animation.gif)
 
 ## Features
 
 - Daily food log
-- Calories, protein, carbs, and fat totals
-- Editable daily goals
 - Editable goal range percentage for month tracking
-- Monthly heatmap overview with OK days and over/under totals
-- Previous and next day navigation
+- Monthly heatmap overview
 - Food barcode scanning with an in-app camera preview
-- Adjustable amount eaten for scanned foods
-- Debounced Open Food Facts search when entering a food name
 - Local SQLite storage in `$XDG_DATA_HOME/nomnomus/data.sqlite3`
 
 ## Project layout
@@ -22,26 +19,18 @@ A small Python GTK 4 / Libadwaita nutrient tracker made for narrow Linux phone s
 - `data/` contains desktop integration assets, with folders reserved for icons and services.
 - `debian/` is reserved for Debian package metadata.
 - `pyproject.toml` contains Python packaging metadata and the `nomnomus` command.
+- `screenshots/` contains preview images.
 
-## Run
+## Installation
 
-Install the GTK and Libadwaita Python bindings for your distro, then run:
-
-```sh
-python3 src/main.py
-```
-
-You can also launch it with:
-
-```sh
-./src/run.sh
-```
+### Reccomended installation
 
 To install nomnomus via deb pack see releases and run: 
 ```sh
 sudo apt install ./dist/nomnomus_0.1.0_all.deb
 ```
 
+### Other installations
 
 To install the `nomnomus` command from a checkout, run manually:
 
@@ -62,6 +51,26 @@ On Fedora:
 ```sh
 sudo dnf install python3-gobject gtk4 libadwaita python3-gstreamer1 \
   gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-plugin-gtk4
+```
+
+On mingw-w64 (used for testing):
+```sh
+pacman -S --needed   mingw-w64-ucrt-x86_64-python   mingw-w64-ucrt-x86_64-python-gobject   mingw-w64-ucrt-x86_64-gtk4   mingw-w64-ucrt-x86_64-libadwaita   mingw-w64-ucrt-x86_64-gstreamer   mingw-w64-ucrt-x86_64-gst-plugins-good   mingw-w64-ucrt-x86_64-gst-plugins-bad   mingw-w64-ucrt-x86_64-gst-plugin-gtk mingw-w64-x86_64-libadwaita
+```
+
+
+## Run
+
+Install the GTK and Libadwaita Python bindings for your distro, then run:
+
+```sh
+python3 src/main.py
+```
+
+You can also launch it with:
+
+```sh
+./src/run.sh
 ```
 
 ## Notes
