@@ -37,7 +37,13 @@ You can also launch it with:
 ./src/run.sh
 ```
 
-To install the `nomnomus` command from a checkout, run:
+To install nomnomus via deb pack see releases and run: 
+```sh
+sudo apt install ./dist/nomnomus_0.1.0_all.deb
+```
+
+
+To install the `nomnomus` command from a checkout, run manually:
 
 ```sh
 python3 -m pip install --user -e .
