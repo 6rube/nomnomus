@@ -1,3 +1,5 @@
+![Logo](./data/icons/dev.local.NomNomus.svg)
+
 # NomNomus
 
 A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones.
