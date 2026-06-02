@@ -93,7 +93,8 @@ To add it to a phone launcher, install the `nomnomus` command and copy
 `~/.local/share/icons/hicolor/scalable/apps/` to install the launcher icon.
 The desktop file launches the installed command.
 
-# Ads
+# Resources
 
 [Linuxphone Forum](https://linuxphone.io/)
+
 [Linuxphone Wiki](https://wiki.linuxphone.io/index.php?title=Main_Page)
