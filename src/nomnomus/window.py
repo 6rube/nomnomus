@@ -8,7 +8,8 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gtk
 
 from . import APP_NAME
-from .dialogs import AddEntryDialog, GoalsDialog
+from .dialogs import GoalsDialog
+from .edit_food import AddEntryDialog
 from .icons import choose_icon, icon_button
 from .overview import MonthOverviewDialog
 from .store import Store
