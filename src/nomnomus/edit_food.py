@@ -7,7 +7,7 @@ gi.require_version("Gtk", "4.0")
 
 from gi.repository import Adw, GLib, Gtk
 
-from .barcodes import BarcodeLookupError, search_products
+from .barcodes import BarcodeLookupError, ScannedFood, search_products
 from .dialogs import BarcodeScannerDialog, make_adjustment
 from .icons import choose_icon, icon_button
 from .models import calories_from_macros
@@ -18,11 +18,12 @@ SEARCH_PAGE_SIZE = 8
 
 
 class AddEntryDialog(Adw.Dialog):
-    def __init__(self, parent, day, on_save, entry=None):
+    def __init__(self, parent, day, on_save, entry=None, store=None):
         super().__init__()
         self.day = day
         self.on_save = on_save
         self.entry = entry
+        self.store = store
         self.scanned_food = None
         self.search_timeout_id = None
         self.search_generation = 0
@@ -32,6 +33,7 @@ class AddEntryDialog(Adw.Dialog):
         self.search_loading = False
         self.search_has_more = False
         self.search_seen_barcodes = set()
+        self.search_result_count = 0
         self.suppress_name_search = False
         self.search_result_selected = False
         self.is_closed = False
@@ -89,6 +91,7 @@ class AddEntryDialog(Adw.Dialog):
         self.search_results.add_css_class("boxed-list")
         self.search_results.set_selection_mode(Gtk.SelectionMode.NONE)
         self.search_results.set_activate_on_single_click(True)
+        self.search_results.connect("row-activated", self._activate_name_search_result)
 
         self.search_scroller = Gtk.ScrolledWindow()
         self.search_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -168,7 +171,7 @@ class AddEntryDialog(Adw.Dialog):
             f"Scanned {food.barcode}. Nutrition is calculated from {food.basis}.",
         )
 
-    def _apply_food(self, food, note):
+    def _apply_food(self, food, note, clear_search=True):
         self.scanned_food = food
         self.amount_basis = None
         self.suppress_name_search = True
@@ -178,7 +181,8 @@ class AddEntryDialog(Adw.Dialog):
         self._update_amount()
         self.scan_note.set_label(note)
         self.scan_note.set_visible(True)
-        self._clear_search_results()
+        if clear_search:
+            self._clear_search_results()
         self.search_status.set_visible(False)
 
     def _on_name_changed(self, _entry):
@@ -213,7 +217,10 @@ class AddEntryDialog(Adw.Dialog):
         self.search_page = 0
         self.search_loading = True
         self.search_has_more = False
+        self.search_result_selected = False
         self.search_seen_barcodes = set()
+        self.search_result_count = 0
+        self._append_recipe_search_results(query)
         thread = threading.Thread(
             target=self._fetch_name_search,
             args=(query, generation, 1),
@@ -235,9 +242,6 @@ class AddEntryDialog(Adw.Dialog):
             return GLib.SOURCE_REMOVE
 
         self.search_loading = False
-        if page == 1:
-            self._clear_search_results()
-            self.search_result_selected = False
 
         added = 0
         for food in foods:
@@ -251,7 +255,7 @@ class AddEntryDialog(Adw.Dialog):
         self.search_page = page
         self.search_has_more = len(foods) >= SEARCH_PAGE_SIZE
 
-        if page == 1 and not added:
+        if page == 1 and not added and self.search_result_count == 0:
             self.search_status.set_label("No Open Food Facts matches found.")
             self.search_status.set_visible(True)
             return GLib.SOURCE_REMOVE
@@ -269,18 +273,49 @@ class AddEntryDialog(Adw.Dialog):
             return GLib.SOURCE_REMOVE
         self.search_loading = False
         self.search_has_more = False
-        if page == 1:
+        if page == 1 and self.search_result_count == 0:
             self._clear_search_results()
-        self.search_status.set_label(message)
+        if page == 1 and self.search_result_count:
+            self.search_status.set_label("Showing saved recipes. Open Food Facts failed.")
+        else:
+            self.search_status.set_label(message)
         self.search_status.set_visible(True)
         return GLib.SOURCE_REMOVE
+
+    def _append_recipe_search_results(self, query):
+        if not self.store:
+            return
+        for recipe in self.store.recipes_matching(query):
+            food = self._food_from_recipe(recipe)
+            self.search_seen_barcodes.add(food.barcode)
+            self._append_search_result(food)
+        if self.search_result_count:
+            self.search_status.set_label("Select a saved recipe or Open Food Facts match:")
+            self.search_status.set_visible(True)
+            self.search_scroller.set_visible(True)
+
+    def _food_from_recipe(self, recipe):
+        basis_quantity = recipe.grams if recipe.grams > 0 else 1
+        factor = 100 / basis_quantity
+        return ScannedFood(
+            barcode=f"recipe:{recipe.id}",
+            name=recipe.name,
+            protein=recipe.protein,
+            carbs=recipe.carbs,
+            fat=recipe.fat,
+            basis=f"{basis_quantity:g} g recipe",
+            basis_quantity=basis_quantity,
+            brand="Saved recipe",
+            protein_100g=recipe.protein * factor,
+            carbs_100g=recipe.carbs * factor,
+            fat_100g=recipe.fat * factor,
+            source="recipe",
+        )
 
     def _append_search_result(self, food):
         result = Gtk.ListBoxRow()
         result.food = food
         result.set_activatable(True)
-        result.set_selectable(False)
-        result.connect("activate", self._activate_name_search_result)
 
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         row.set_margin_top(10)
@@ -311,15 +346,10 @@ class AddEntryDialog(Adw.Dialog):
         labels.append(nutrition)
 
         source_icon = Gtk.Image.new_from_icon_name(
-            choose_icon(
-                "globe-symbolic",
-                "web-browser-symbolic",
-                "network-workgroup-symbolic",
-                "applications-internet-symbolic",
-            )
+            self._food_source_icon(food)
         )
         source_icon.add_css_class("dim-label")
-        source_icon.set_tooltip_text("Open Food Facts")
+        source_icon.set_tooltip_text(self._food_source_tooltip(food))
         source_icon.set_valign(Gtk.Align.START)
         source_icon.set_margin_top(2)
 
@@ -327,11 +357,14 @@ class AddEntryDialog(Adw.Dialog):
         row.append(source_icon)
         result.set_child(row)
         self.search_results.append(result)
+        self.search_result_count += 1
 
-    def _activate_name_search_result(self, row):
-        self._select_name_search_result(row, row.food)
+    def _activate_name_search_result(self, _listbox, row):
+        GLib.idle_add(self._select_name_search_result, row, row.food)
 
     def _food_metadata(self, food):
+        if food.source == "recipe":
+            return "Saved recipe"
         if food.brand and food.brand != food.name:
             return food.brand
         return ""
@@ -343,6 +376,23 @@ class AddEntryDialog(Adw.Dialog):
             f"P {food.protein_100g:g}g  C {food.carbs_100g:g}g  "
             f"F {food.fat_100g:g}g per 100g"
         )
+
+    def _food_source_icon(self, food):
+        if food.source == "recipe":
+            return choose_icon(
+                "starred-symbolic",
+                "emblem-favorite-symbolic",
+                "non-starred-symbolic",
+            )
+        return choose_icon(
+            "globe-symbolic",
+            "web-browser-symbolic",
+            "network-workgroup-symbolic",
+            "applications-internet-symbolic",
+        )
+
+    def _food_source_tooltip(self, food):
+        return "Saved recipe" if food.source == "recipe" else "Open Food Facts"
 
     def _on_search_results_scrolled(self, adjustment):
         if (
@@ -370,7 +420,7 @@ class AddEntryDialog(Adw.Dialog):
 
     def _select_name_search_result(self, _row, food):
         if self.search_result_selected:
-            return
+            return GLib.SOURCE_REMOVE
         self.search_result_selected = True
         self._cancel_name_search()
         self.search_generation += 1
@@ -378,7 +428,12 @@ class AddEntryDialog(Adw.Dialog):
         self._apply_food(
             food,
             f"Selected {food.name}. Nutrition is calculated from {food.basis}.",
+            clear_search=False,
         )
+        self.search_scroller.set_visible(False)
+        self.search_status.set_visible(False)
+        GLib.timeout_add(100, self._clear_search_results)
+        return GLib.SOURCE_REMOVE
 
     def _clear_search_results(self):
         while child := self.search_results.get_first_child():
@@ -389,6 +444,7 @@ class AddEntryDialog(Adw.Dialog):
         self.search_loading = False
         self.search_has_more = False
         self.search_seen_barcodes = set()
+        self.search_result_count = 0
 
     def _cancel_name_search(self):
         if self.search_timeout_id:

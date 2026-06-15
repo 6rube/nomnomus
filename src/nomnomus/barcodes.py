@@ -32,6 +32,7 @@ class ScannedFood:
     protein_100g: float = 0.0
     carbs_100g: float = 0.0
     fat_100g: float = 0.0
+    source: str = "open_food_facts"
 
     def macros_for_amount(self, amount):
         factor = _number(amount) / self.basis_quantity

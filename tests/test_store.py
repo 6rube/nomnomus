@@ -92,5 +92,34 @@ class StoreTest(unittest.TestCase):
         self.assertEqual(reloaded.entries[0].name, "Old lunch")
         self.assertEqual(reloaded.entries[0].grams, 0)
 
+    def test_store_persists_and_matches_recipes(self):
+        store = Store()
+        entry = store.add_entry("2026-06-01", "Lunch", 250, 500, 25, 60, 18)
+
+        recipe = store.add_recipe_from_entry(entry)
+        reloaded = Store()
+
+        self.assertEqual(len(reloaded.recipes), 1)
+        self.assertEqual(reloaded.recipes[0].name, "Lunch")
+        self.assertEqual(reloaded.recipes[0].grams, 250)
+        self.assertEqual(reloaded.recipes_matching("lun")[0].id, recipe.id)
+        self.assertIsNotNone(reloaded.recipe_for_entry(entry))
+
+        reloaded.update_recipe(recipe.id, "Lunch bowl", 300, 600, 30, 70, 20)
+        self.assertEqual(reloaded.recipes[0].name, "Lunch bowl")
+
+        reloaded.delete_recipe(recipe.id)
+        self.assertEqual(reloaded.recipes, [])
+
+    def test_store_deletes_recipe_for_entry(self):
+        store = Store()
+        entry = store.add_entry("2026-06-01", "Lunch", 250, 500, 25, 60, 18)
+        store.add_recipe_from_entry(entry)
+
+        removed = store.delete_recipe_for_entry(entry)
+
+        self.assertEqual(removed.name, "Lunch")
+        self.assertEqual(store.recipes, [])
+
 if __name__ == "__main__":
     unittest.main()

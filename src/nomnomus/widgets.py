@@ -38,11 +38,14 @@ class EntryRow(Gtk.ListBoxRow):
     __gsignals__ = {
         "delete-entry": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
         "edit-entry": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
+        "save-recipe": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
+        "remove-recipe": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
     }
 
-    def __init__(self, entry):
+    def __init__(self, entry, is_recipe=False):
         super().__init__()
         self.entry = entry
+        self.is_recipe = is_recipe
 
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         box.set_margin_top(10)
@@ -68,6 +71,14 @@ class EntryRow(Gtk.ListBoxRow):
         text.append(macros)
         text.set_hexpand(True)
 
+        recipe_button = Gtk.Button()
+        recipe_button.set_icon_name(self._recipe_icon())
+        recipe_button.add_css_class("flat")
+        recipe_button.set_tooltip_text(
+            "Saved as recipe" if is_recipe else "Save as recipe"
+        )
+        recipe_button.connect("clicked", self._on_recipe_clicked)
+
         edit_button = Gtk.Button()
         edit_button.set_icon_name(
             choose_icon("edit-symbolic", "document-edit-symbolic", "document-edit")
@@ -84,6 +95,7 @@ class EntryRow(Gtk.ListBoxRow):
         delete_button.connect("clicked", self._on_delete_clicked)
 
         box.append(text)
+        box.append(recipe_button)
         box.append(edit_button)
         box.append(delete_button)
         self.set_child(box)
@@ -95,6 +107,31 @@ class EntryRow(Gtk.ListBoxRow):
 
     def _on_delete_clicked(self, _button):
         self.emit("delete-entry", self.entry.id)
+
+    def _recipe_icon(self):
+        if self.is_recipe:
+            return choose_icon(
+                "starred-symbolic",
+                "emblem-favorite-symbolic",
+                "non-starred-symbolic",
+            )
+        return choose_icon(
+            "non-starred-symbolic",
+            "emblem-favorite-symbolic",
+            "starred-symbolic",
+        )
+
+    def _on_recipe_clicked(self, button):
+        if self.is_recipe:
+            self.is_recipe = False
+            button.set_icon_name(self._recipe_icon())
+            button.set_tooltip_text("Save as recipe")
+            self.emit("remove-recipe", self.entry.id)
+            return
+        self.is_recipe = True
+        button.set_icon_name(self._recipe_icon())
+        button.set_tooltip_text("Saved as recipe")
+        self.emit("save-recipe", self.entry.id)
 
     def _on_activate(self, _row):
         self.emit("edit-entry", self.entry.id)

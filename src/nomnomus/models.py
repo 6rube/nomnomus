@@ -13,6 +13,17 @@ class MealEntry:
     fat: float
 
 
+@dataclass
+class Recipe:
+    id: str
+    name: str
+    grams: float
+    calories: float
+    protein: float
+    carbs: float
+    fat: float
+
+
 DEFAULT_GOALS = {
     "calories": 2200.0,
     "protein": 120.0,

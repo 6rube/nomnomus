@@ -12,6 +12,7 @@ from .dialogs import GoalsDialog
 from .edit_food import AddEntryDialog
 from .icons import choose_icon, icon_button
 from .overview import MonthOverviewDialog
+from .recipes import RecipesDialog
 from .store import Store
 from .widgets import EntryRow, NutrientBar
 
@@ -51,6 +52,17 @@ class Window(Adw.ApplicationWindow):
         goals_button.set_tooltip_text("Daily goals")
         goals_button.connect("clicked", self._show_goals)
         header.pack_end(goals_button)
+
+        recipes_button = Gtk.Button(
+            icon_name=choose_icon(
+                "emblem-favorite-symbolic",
+                "starred-symbolic",
+                "non-starred-symbolic",
+            )
+        )
+        recipes_button.set_tooltip_text("Recipes")
+        recipes_button.connect("clicked", self._show_recipes)
+        header.pack_end(recipes_button)
 
         add_button = Gtk.Button(icon_name="list-add-symbolic")
         add_button.add_css_class("suggested-action")
@@ -119,9 +131,11 @@ class Window(Adw.ApplicationWindow):
 
         entries = self.store.entries_for(self.selected_day.isoformat())
         for entry in entries:
-            row = EntryRow(entry)
+            row = EntryRow(entry, bool(self.store.recipe_for_entry(entry)))
             row.connect("delete-entry", self._delete_entry)
             row.connect("edit-entry", self._edit_entry)
+            row.connect("save-recipe", self._save_entry_as_recipe)
+            row.connect("remove-recipe", self._remove_entry_recipe)
             self.list.append(row)
 
         self.list.set_visible(bool(entries))
@@ -146,13 +160,18 @@ class Window(Adw.ApplicationWindow):
         self.refresh()
 
     def _show_add_entry(self, _button):
-        AddEntryDialog(self, self.selected_day.isoformat(), self._add_entry)
+        AddEntryDialog(
+            self, self.selected_day.isoformat(), self._add_entry, store=self.store
+        )
 
     def _show_goals(self, _button):
         GoalsDialog(self, self.store, self.refresh)
 
     def _show_month_overview(self, _button):
         MonthOverviewDialog(self, self.store, self.selected_day, self.go_to_day)
+
+    def _show_recipes(self, _button):
+        RecipesDialog(self, self.store, self.refresh)
 
     def _add_entry(self, day, name, grams, calories, protein, carbs, fat):
         self.store.add_entry(day, name, grams, calories, protein, carbs, fat)
@@ -161,7 +180,13 @@ class Window(Adw.ApplicationWindow):
     def _edit_entry(self, _row, entry_id):
         for entry in self.store.entries_for(self.selected_day.isoformat()):
             if entry.id == entry_id:
-                AddEntryDialog(self, self.selected_day.isoformat(), self._update_entry, entry)
+                AddEntryDialog(
+                    self,
+                    self.selected_day.isoformat(),
+                    self._update_entry,
+                    entry,
+                    self.store,
+                )
                 break
 
     def _update_entry(self, entry_id, day, name, grams, calories, protein, carbs, fat):
@@ -171,3 +196,17 @@ class Window(Adw.ApplicationWindow):
     def _delete_entry(self, _row, entry_id):
         self.store.delete_entry(entry_id)
         self.refresh()
+
+    def _save_entry_as_recipe(self, _row, entry_id):
+        for entry in self.store.entries_for(self.selected_day.isoformat()):
+            if entry.id == entry_id:
+                self.store.add_recipe_from_entry(entry)
+                self.refresh()
+                break
+
+    def _remove_entry_recipe(self, _row, entry_id):
+        for entry in self.store.entries_for(self.selected_day.isoformat()):
+            if entry.id == entry_id:
+                self.store.delete_recipe_for_entry(entry)
+                self.refresh()
+                break
