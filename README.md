@@ -18,10 +18,9 @@ A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones.
 ## Project layout
 
 - `src/nomnomus/` contains the Python application package.
-- `Makefile` creates a local virtual environment and runs the app from it.
 - `data/` contains desktop integration assets, with folders reserved for icons and services.
 - `debian/` is reserved for Debian package metadata.
-- `pyproject.toml` contains Python packaging metadata and the `xetrack` command.
+- `pyproject.toml` contains Python packaging metadata and the `nomnomus` command.
 - `screenshots/` contains preview images.
 
 ## Installation
@@ -35,20 +34,14 @@ sudo apt install ./dist/nomnomus_0.1.0_all.deb
 
 ### Development checkout
 
-Install the GTK and Libadwaita Python bindings for your distro first. Then run from
-the checkout with a local virtual environment:
-
-```sh
-make run
-```
-
-Or do the same steps manually:
+Install the GTK and Libadwaita Python bindings for your distro first. Then install
+the app into a local virtual environment from the checkout:
 
 ```sh
 python3 -m venv --system-site-packages .venv
 . .venv/bin/activate
 python -m pip install --no-build-isolation -e .
-xetrack
+nomnomus
 ```
 
 On Debian, Ubuntu, or Mobian with apt packages, the dependencies are usually:
@@ -75,7 +68,8 @@ pacman -S --needed   mingw-w64-ucrt-x86_64-python   mingw-w64-ucrt-x86_64-python
 ## Run
 
 ```sh
-make run
+. .venv/bin/activate
+nomnomus
 ```
 
 ## Notes
@@ -92,7 +86,7 @@ In the monthly overview, OK days are counted only from days where you logged foo
 The over/under totals compare your consumed monthly totals against the target days
 for that month: month-to-date for the current month, or the full month for past months.
 
-To add it to a phone launcher, install the `xetrack` command and copy
+To add it to a phone launcher, install the `nomnomus` command and copy
 `data/dev.local.NomNomus.desktop` into `~/.local/share/applications/`. Copy
 `data/icons/dev.local.NomNomus.svg` into
 `~/.local/share/icons/hicolor/scalable/apps/` to install the launcher icon.

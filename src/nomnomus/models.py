@@ -6,6 +6,7 @@ class MealEntry:
     id: str
     day: str
     name: str
+    grams: float
     calories: float
     protein: float
     carbs: float

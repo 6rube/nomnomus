@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS entries (
     id TEXT PRIMARY KEY,
     day TEXT NOT NULL,
     name TEXT NOT NULL,
+    grams REAL NOT NULL DEFAULT 0,
     calories REAL NOT NULL,
     protein REAL NOT NULL,
     carbs REAL NOT NULL,
@@ -51,11 +52,12 @@ class Store:
 
     def load(self):
         with sqlite3.connect(self.path) as connection:
+            self._migrate_database(connection)
             goals = dict(connection.execute("SELECT key, value FROM goals"))
             settings = dict(connection.execute("SELECT key, value FROM settings"))
             rows = connection.execute(
                 """
-                SELECT id, day, name, calories, protein, carbs, fat
+                SELECT id, day, name, grams, calories, protein, carbs, fat
                 FROM entries
                 ORDER BY rowid
                 """
@@ -73,8 +75,8 @@ class Store:
             connection.execute("DELETE FROM settings")
             connection.executemany(
                 """
-                INSERT INTO entries (id, day, name, calories, protein, carbs, fat)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO entries (id, day, name, grams, calories, protein, carbs, fat)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (astuple(entry) for entry in self.entries),
             )
@@ -90,12 +92,24 @@ class Store:
     def _initialize_database(self):
         with sqlite3.connect(self.path) as connection:
             connection.executescript(SCHEMA)
+            self._migrate_database(connection)
 
-    def add_entry(self, day, name, calories, protein, carbs, fat):
+    def _migrate_database(self, connection):
+        columns = {
+            row[1]
+            for row in connection.execute("PRAGMA table_info(entries)")
+        }
+        if "grams" not in columns:
+            connection.execute(
+                "ALTER TABLE entries ADD COLUMN grams REAL NOT NULL DEFAULT 0"
+            )
+
+    def add_entry(self, day, name, grams, calories, protein, carbs, fat):
         entry = MealEntry(
             id=str(uuid.uuid4()),
             day=day,
             name=name.strip() or "Food",
+            grams=grams,
             calories=calories,
             protein=protein,
             carbs=carbs,
@@ -105,11 +119,12 @@ class Store:
         self.save()
         return entry
 
-    def update_entry(self, entry_id, day, name, calories, protein, carbs, fat):
+    def update_entry(self, entry_id, day, name, grams, calories, protein, carbs, fat):
         for entry in self.entries:
             if entry.id == entry_id:
                 entry.day = day
                 entry.name = name.strip() or "Food"
+                entry.grams = grams
                 entry.calories = calories
                 entry.protein = protein
                 entry.carbs = carbs

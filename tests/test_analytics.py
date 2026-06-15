@@ -101,13 +101,23 @@ class AnalyticsTest(unittest.TestCase):
                 os.environ["XDG_DATA_HOME"] = data_home
                 store = Store()
                 store.entries = []
-                added = store.add_entry("2026-05-27", "Old", 100, 10, 10, 2)
+                added = store.add_entry("2026-05-27", "Old", 50, 100, 10, 10, 2)
 
-                updated = store.update_entry(added.id, "2026-05-27", "New", 200, 20, 20, 4)
+                updated = store.update_entry(
+                    added.id,
+                    "2026-05-27",
+                    "New",
+                    125,
+                    200,
+                    20,
+                    20,
+                    4,
+                )
 
                 self.assertIsNotNone(updated)
                 self.assertEqual(len(store.entries), 1)
                 self.assertEqual(store.entries[0].name, "New")
+                self.assertEqual(store.entries[0].grams, 125)
                 self.assertEqual(store.entries[0].calories, 200)
         finally:
             if previous_data_home is None:

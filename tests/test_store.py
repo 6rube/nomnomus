@@ -29,7 +29,7 @@ class StoreTest(unittest.TestCase):
 
     def test_store_persists_entries_goals_and_settings_in_sqlite(self):
         store = Store()
-        store.add_entry("2026-06-01", "Lunch", 500, 25, 60, 18)
+        store.add_entry("2026-06-01", "Lunch", 250, 500, 25, 60, 18)
         store.goals["protein"] = 140
         store.settings["range_percent"] = 20
         store.save()
@@ -40,6 +40,7 @@ class StoreTest(unittest.TestCase):
         self.assertEqual(reloaded.path.parent.name, "nomnomus")
         self.assertEqual(len(reloaded.entries), 1)
         self.assertEqual(reloaded.entries[0].name, "Lunch")
+        self.assertEqual(reloaded.entries[0].grams, 250)
         self.assertEqual(reloaded.goals["protein"], 140)
         self.assertEqual(reloaded.settings["range_percent"], 20)
         with sqlite3.connect(reloaded.path) as connection:
@@ -48,7 +49,7 @@ class StoreTest(unittest.TestCase):
 
     def test_store_copies_legacy_database_on_first_launch(self):
         store = Store()
-        store.add_entry("2026-06-01", "Lunch", 500, 25, 60, 18)
+        store.add_entry("2026-06-01", "Lunch", 250, 500, 25, 60, 18)
 
         legacy_dir = Path(self.data_home.name) / "nutrient-tracker"
         legacy_dir.mkdir()
@@ -59,6 +60,37 @@ class StoreTest(unittest.TestCase):
         self.assertTrue(reloaded.path.exists())
         self.assertEqual(len(reloaded.entries), 1)
         self.assertEqual(reloaded.entries[0].name, "Lunch")
+        self.assertEqual(reloaded.entries[0].grams, 250)
+
+    def test_store_migrates_entries_without_grams(self):
+        store = Store()
+        with sqlite3.connect(store.path) as connection:
+            connection.execute("DROP TABLE entries")
+            connection.execute(
+                """
+                CREATE TABLE entries (
+                    id TEXT PRIMARY KEY,
+                    day TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    calories REAL NOT NULL,
+                    protein REAL NOT NULL,
+                    carbs REAL NOT NULL,
+                    fat REAL NOT NULL
+                )
+                """
+            )
+            connection.execute(
+                """
+                INSERT INTO entries (id, day, name, calories, protein, carbs, fat)
+                VALUES ('entry-1', '2026-06-01', 'Old lunch', 500, 25, 60, 18)
+                """
+            )
+
+        reloaded = Store()
+
+        self.assertEqual(len(reloaded.entries), 1)
+        self.assertEqual(reloaded.entries[0].name, "Old lunch")
+        self.assertEqual(reloaded.entries[0].grams, 0)
 
 if __name__ == "__main__":
     unittest.main()

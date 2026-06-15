@@ -26,6 +26,7 @@ class AddEntryDialog(Adw.Dialog):
         self.suppress_name_search = False
         self.search_result_selected = False
         self.is_closed = False
+        self.amount_basis = None
 
         self.set_title("Edit Food" if entry else "Add Food")
         self.set_content_width(420)
@@ -87,8 +88,7 @@ class AddEntryDialog(Adw.Dialog):
         form.append(self.scan_note)
 
         self.amount = self._spin("Amount eaten (g)", 0, 10000, 1)
-        self.amount.set_visible(False)
-        self.amount.spin.connect("value-changed", self._update_scanned_amount)
+        self.amount.spin.connect("value-changed", self._update_amount)
         form.append(self.amount)
 
         self.protein = self._spin("Protein (g)", 0, 500, 1)
@@ -101,6 +101,14 @@ class AddEntryDialog(Adw.Dialog):
             form.append(row)
 
         if entry:
+            if entry.grams > 0:
+                self.amount_basis = {
+                    "grams": entry.grams,
+                    "protein": entry.protein,
+                    "carbs": entry.carbs,
+                    "fat": entry.fat,
+                }
+            self.amount.spin.set_value(entry.grams)
             self.protein.spin.set_value(entry.protein)
             self.carbs.spin.set_value(entry.carbs)
             self.fat.spin.set_value(entry.fat)
@@ -129,12 +137,12 @@ class AddEntryDialog(Adw.Dialog):
 
     def _apply_food(self, food, note):
         self.scanned_food = food
+        self.amount_basis = None
         self.suppress_name_search = True
         self.name.set_text(food.name)
         self.suppress_name_search = False
-        self.amount.set_visible(True)
         self.amount.spin.set_value(food.basis_quantity)
-        self._update_scanned_amount()
+        self._update_amount()
         self.scan_note.set_label(note)
         self.scan_note.set_visible(True)
         self._clear_search_results()
@@ -256,16 +264,23 @@ class AddEntryDialog(Adw.Dialog):
         self.search_generation += 1
         self._cancel_name_search()
 
-    def _update_scanned_amount(self, _spin=None):
-        if not self.scanned_food:
+    def _update_amount(self, _spin=None):
+        if self.scanned_food:
+            protein, carbs, fat = self.scanned_food.macros_for_amount(
+                self.amount.spin.get_value()
+            )
+            self.protein.spin.set_value(protein)
+            self.carbs.spin.set_value(carbs)
+            self.fat.spin.set_value(fat)
             return
 
-        protein, carbs, fat = self.scanned_food.macros_for_amount(
-            self.amount.spin.get_value()
-        )
-        self.protein.spin.set_value(protein)
-        self.carbs.spin.set_value(carbs)
-        self.fat.spin.set_value(fat)
+        if not self.amount_basis:
+            return
+
+        factor = self.amount.spin.get_value() / self.amount_basis["grams"]
+        self.protein.spin.set_value(self.amount_basis["protein"] * factor)
+        self.carbs.spin.set_value(self.amount_basis["carbs"] * factor)
+        self.fat.spin.set_value(self.amount_basis["fat"] * factor)
 
     def _spin(self, title, lower, upper, step):
         row = Adw.ActionRow(title=title)
@@ -282,6 +297,7 @@ class AddEntryDialog(Adw.Dialog):
         values = (
             self.day,
             self.name.get_text(),
+            self.amount.spin.get_value(),
             self.calories.spin.get_value(),
             self.protein.spin.get_value(),
             self.carbs.spin.get_value(),

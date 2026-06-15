@@ -154,8 +154,8 @@ class Window(Adw.ApplicationWindow):
     def _show_month_overview(self, _button):
         MonthOverviewDialog(self, self.store, self.selected_day, self.go_to_day)
 
-    def _add_entry(self, day, name, calories, protein, carbs, fat):
-        self.store.add_entry(day, name, calories, protein, carbs, fat)
+    def _add_entry(self, day, name, grams, calories, protein, carbs, fat):
+        self.store.add_entry(day, name, grams, calories, protein, carbs, fat)
         self.refresh()
 
     def _edit_entry(self, _row, entry_id):
@@ -164,8 +164,8 @@ class Window(Adw.ApplicationWindow):
                 AddEntryDialog(self, self.selected_day.isoformat(), self._update_entry, entry)
                 break
 
-    def _update_entry(self, entry_id, day, name, calories, protein, carbs, fat):
-        self.store.update_entry(entry_id, day, name, calories, protein, carbs, fat)
+    def _update_entry(self, entry_id, day, name, grams, calories, protein, carbs, fat):
+        self.store.update_entry(entry_id, day, name, grams, calories, protein, carbs, fat)
         self.refresh()
 
     def _delete_entry(self, _row, entry_id):

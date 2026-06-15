@@ -55,6 +55,7 @@ class EntryRow(Gtk.ListBoxRow):
         title.add_css_class("body")
         macros = Gtk.Label(
             label=(
+                f"{entry.grams:.0f}g eaten  "
                 f"{entry.calories:.0f} kcal  "
                 f"P {entry.protein:.0f}g  C {entry.carbs:.0f}g  F {entry.fat:.0f}g"
             ),
