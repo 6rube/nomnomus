@@ -49,7 +49,8 @@ def month_summary(store, year, month):
         date(year, month, day_number).isoformat()
         for day_number in range(1, comparison_days + 1)
     }
-    logged_days = set(store.logged_days_for_month(year, month)) & counted_days
+    month_totals = _totals_by_day_for_month(store, year, month)
+    logged_days = set(month_totals) & counted_days
 
     daily = {}
     ok_days = 0
@@ -59,7 +60,7 @@ def month_summary(store, year, month):
 
     for day_number in range(1, days_in_month + 1):
         day = date(year, month, day_number).isoformat()
-        totals = store.totals_for(day)
+        totals = month_totals.get(day, dict.fromkeys(NUTRIENTS, 0.0))
         has_entries = day in logged_days
         is_counted = day in counted_days
         ok, deviations = nutrient_status(totals, store.goals, range_percent)
@@ -112,3 +113,20 @@ def _comparison_days(year, month, days_in_month, today):
     if (year, month) < (today.year, today.month):
         return days_in_month
     return 0
+
+
+def _totals_by_day_for_month(store, year, month):
+    if hasattr(store, "totals_by_day_for_month"):
+        return store.totals_by_day_for_month(year, month)
+
+    prefix = f"{year:04d}-{month:02d}-"
+    totals_by_day = {}
+    for entry in getattr(store, "entries", ()):
+        if not entry.day.startswith(prefix):
+            continue
+        totals = totals_by_day.setdefault(entry.day, dict.fromkeys(NUTRIENTS, 0.0))
+        totals["calories"] += entry.calories
+        totals["protein"] += entry.protein
+        totals["carbs"] += entry.carbs
+        totals["fat"] += entry.fat
+    return totals_by_day

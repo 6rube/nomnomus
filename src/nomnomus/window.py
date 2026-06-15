@@ -122,16 +122,17 @@ class Window(Adw.ApplicationWindow):
     def refresh(self):
         self.day_label.set_label(self._day_title())
 
-        totals = self.store.totals_for(self.selected_day.isoformat())
+        day = self.selected_day.isoformat()
+        entries, totals = self.store.entries_and_totals_for(day)
         for key, bar in self.bars.items():
             bar.set_amount(totals[key], self.store.goals[key])
 
         while child := self.list.get_first_child():
             self.list.remove(child)
 
-        entries = self.store.entries_for(self.selected_day.isoformat())
+        recipe_keys = self.store.recipe_keys()
         for entry in entries:
-            row = EntryRow(entry, bool(self.store.recipe_for_entry(entry)))
+            row = EntryRow(entry, self.store.entry_has_recipe(entry, recipe_keys))
             row.connect("delete-entry", self._delete_entry)
             row.connect("edit-entry", self._edit_entry)
             row.connect("save-recipe", self._save_entry_as_recipe)
