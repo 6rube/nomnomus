@@ -1,4 +1,6 @@
 import unittest
+from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 from nomnomus.barcodes import (
     BarcodeLookupError,
@@ -6,6 +8,7 @@ from nomnomus.barcodes import (
     normalize_barcode,
     product_from_response,
     products_from_search_response,
+    search_products,
 )
 
 
@@ -37,6 +40,9 @@ class BarcodeTest(unittest.TestCase):
         self.assertEqual(food.protein, 0.945)
         self.assertEqual(food.carbs, 8.64)
         self.assertEqual(food.fat, 4.635)
+        self.assertEqual(food.protein_100g, 6.3)
+        self.assertEqual(food.carbs_100g, 57.6)
+        self.assertEqual(food.fat_100g, 30.9)
         self.assertEqual(food.macros_for_amount(30), (1.89, 17.28, 9.27))
 
     def test_100g_values_are_used_without_a_serving(self):
@@ -78,6 +84,7 @@ class BarcodeTest(unittest.TestCase):
                     {
                         "code": "12345678",
                         "product_name": "Example",
+                        "brands": "Example Brand",
                         "nutriments": {
                             "proteins_100g": 10,
                             "carbohydrates_100g": 20,
@@ -91,11 +98,40 @@ class BarcodeTest(unittest.TestCase):
 
         self.assertEqual(len(foods), 1)
         self.assertEqual(foods[0].name, "Example")
+        self.assertEqual(foods[0].brand, "Example Brand")
         self.assertEqual(foods[0].basis_quantity, 100)
 
     def test_invalid_search_responses_are_reported(self):
         with self.assertRaises(BarcodeLookupError):
             products_from_search_response({"hits": None})
+
+    def test_search_products_requests_requested_page(self):
+        captured = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, _exc_type, _exc, _traceback):
+                pass
+
+            def read(self):
+                return b'{"hits":[]}'
+
+        def fake_urlopen(request, timeout):
+            captured["url"] = request.full_url
+            captured["timeout"] = timeout
+            return FakeResponse()
+
+        with patch("nomnomus.barcodes.urlopen", fake_urlopen):
+            foods = search_products("apple", timeout=3, page_size=8, page=3)
+
+        query = parse_qs(urlparse(captured["url"]).query)
+        self.assertEqual(foods, [])
+        self.assertEqual(captured["timeout"], 3)
+        self.assertEqual(query["q"], ["apple"])
+        self.assertEqual(query["page"], ["3"])
+        self.assertEqual(query["page_size"], ["8"])
 
 
 if __name__ == "__main__":

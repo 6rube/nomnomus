@@ -28,6 +28,10 @@ class ScannedFood:
     fat: float
     basis: str
     basis_quantity: float
+    brand: str = ""
+    protein_100g: float = 0.0
+    carbs_100g: float = 0.0
+    fat_100g: float = 0.0
 
     def macros_for_amount(self, amount):
         factor = _number(amount) / self.basis_quantity
@@ -77,9 +81,8 @@ def food_from_product(barcode, product):
         basis = "100 g"
         basis_quantity = 100.0
 
-    name = product.get("product_name") or product.get("brands") or f"Product {barcode}"
-    if isinstance(name, list):
-        name = ", ".join(name)
+    brand = _text(product.get("brands"))
+    name = _text(product.get("product_name")) or brand or f"Product {barcode}"
 
     return ScannedFood(
         barcode=barcode,
@@ -89,6 +92,10 @@ def food_from_product(barcode, product):
         fat=_number(nutriments.get(f"fat{suffix}")),
         basis=basis,
         basis_quantity=basis_quantity,
+        brand=brand,
+        protein_100g=_number(nutriments.get("proteins_100g")),
+        carbs_100g=_number(nutriments.get("carbohydrates_100g")),
+        fat_100g=_number(nutriments.get("fat_100g")),
     )
 
 
@@ -128,14 +135,16 @@ def fetch_product(barcode, timeout=8):
     return product_from_response(barcode, payload)
 
 
-def search_products(query, timeout=8, page_size=5):
+def search_products(query, timeout=8, page_size=5, page=1):
     query = str(query).strip()
     if len(query) < 3:
         return []
 
+    page = max(1, int(page))
     parameters = urlencode(
         {
             "q": query,
+            "page": page,
             "page_size": page_size,
         }
     )
@@ -162,6 +171,12 @@ def _number(value):
     except (TypeError, ValueError):
         return 0.0
     return number if math.isfinite(number) and number >= 0 else 0.0
+
+
+def _text(value):
+    if isinstance(value, list):
+        value = ", ".join(str(item).strip() for item in value if str(item).strip())
+    return str(value).strip() if value is not None else ""
 
 
 def _has_number(value):
