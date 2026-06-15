@@ -1,3 +1,11 @@
+xecam (0.2.0) stable; urgency=medium
+
+  * Added recepie feature
+  ~ Fixed performance bugs
+  ~ Fixed updating item amounts consumed
+
+ -- 6rube <47418292+6rube@users.noreply.github.com>  Mon, 15 Jun 2026 00:00:00 +0200
+
 nomnomus (0.1.0) unstable; urgency=medium
 
   * Initial Debian package.

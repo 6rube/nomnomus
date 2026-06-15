@@ -29,7 +29,7 @@ A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones.
 
 To install nomnomus via deb pack see releases and run: 
 ```sh
-sudo apt install ./dist/nomnomus_0.1.0_all.deb
+sudo apt install ./dist/nomnomus_0.2.0_all.deb
 ```
 
 ### Development checkout
