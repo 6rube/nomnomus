@@ -19,6 +19,7 @@ classifiers = [
 
 [project.scripts]
 nomnomus = "nomnomus.app:main"
+xetrack = "nomnomus.app:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
