@@ -3,7 +3,7 @@
   <id>io.github._6rube.nomnomus</id>
   
   <name>NomNomus</name>
-  <summary>A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones.</summary>
+  <summary>Track daily calories and nutrients on Linux phones</summary>
   
   <categories>
     <category>HealthFitness</category>
@@ -17,7 +17,7 @@
     <name>6rube</name>
   </developer>
 
-  <icon type="remote">https://raw.githubusercontent.com/6rube/nomnomus/main/data/icons/io.github._6rube.nomnomus.png</icon>
+  <icon type="stock">io.github._6rube.nomnomus</icon>
 
   <supports>
     <control>keyboard</control>
@@ -57,23 +57,28 @@
   
   <description>
     <p>
-      A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones. It is designed to be easy to use and with not to many dependencies.
+      NomNomus is a nutrient tracker designed for Linux phones. Log your meals,
+      track calories and macronutrients, and review your progress throughout the month.
     </p>
     <p>
-      Features
+      Features include:
     </p>
-    <p>
-      - Daily food log - Editable goal range percentage for month tracking - Monthly heatmap overview - Food barcode scanning with an in-app camera preview - Food Data from https://world.openfoodfacts.org/ - Local SQLite storage in <code>$XDG_DATA_HOME/nomnomus/data.sqlite3</code>
-    </p>
+    <ul>
+      <li>Daily food log with editable nutrient goals</li>
+      <li>Monthly heatmap overview with an adjustable goal range</li>
+      <li>Food barcode scanning with an in-app camera preview</li>
+      <li>Food search and barcode lookup using Open Food Facts</li>
+      <li>Local storage of your food log</li>
+    </ul>
   </description>
   
   <launchable type="desktop-id">io.github._6rube.nomnomus.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/6rube/nomnomus/blob/main/screenshots/main.png</image>
+      <image>https://raw.githubusercontent.com/6rube/nomnomus/main/screenshots/main.png</image>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/6rube/nomnomus/blob/main/screenshots/calendar.png</image>
+      <image>https://raw.githubusercontent.com/6rube/nomnomus/main/screenshots/calendar.png</image>
     </screenshot>
   </screenshots>
 </component>
