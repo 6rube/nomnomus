@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github._6rube.nomnomus</id>
+  
+  <name>NomNomus</name>
+  <summary>A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones.</summary>
+  
+  <categories>
+    <category>HealthFitness</category>
+    <category>Utility</category>
+  </categories>
+
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  
+  <developer id="io.github.6rube">
+    <name>6rube</name>
+  </developer>
+
+  <icon type="remote">https://raw.githubusercontent.com/6rube/nomnomus/main/data/icons/io.github._6rube.nomnomus.png</icon>
+
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+
+  <content_rating type="oars-1.1" />
+  <url type="homepage">https://github.com/6rube/nomnomus</url>
+  <url type="bugtracker">https://github.com/6rube/nomnomus/issues</url>
+
+  <releases>
+  <release version="0.2.0" date="2026-06-15">
+    <url type="details">https://github.com/6rube/nomnomus/releases/tag/0.2.0</url>
+    <description>
+      <p>Release description</p>
+        <ul>
+          <li>Added recepie feature</li>
+          <li>Fixed performance bugs</li>
+          <li>Fixed updating item amounts consumed</li>
+        </ul>
+    </description>
+  </release>
+  <release version="0.1.0" date="2026-06-02">
+    <url type="details">https://github.com/6rube/nomnomus/releases/tag/0.1.0</url>
+    <description>
+      <p>Release description</p>
+        <ul>
+          <li>Initial release</li>
+        </ul>
+    </description>
+  </release>
+</releases>
+  
+  <description>
+    <p>
+      A small Python GTK 4 / Libadwaita nutrient tracker made for Linux phones. It is designed to be easy to use and with not to many dependencies.
+    </p>
+    <p>
+      Features
+    </p>
+    <p>
+      - Daily food log - Editable goal range percentage for month tracking - Monthly heatmap overview - Food barcode scanning with an in-app camera preview - Food Data from https://world.openfoodfacts.org/ - Local SQLite storage in <code>$XDG_DATA_HOME/nomnomus/data.sqlite3</code>
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">io.github._6rube.nomnomus.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/6rube/nomnomus/blob/main/screenshots/main.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/6rube/nomnomus/blob/main/screenshots/calendar.png</image>
+    </screenshot>
+  </screenshots>
+</component>

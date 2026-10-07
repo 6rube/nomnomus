@@ -1,2 +1,2 @@
-APP_ID = "dev.local.NomNomus"
+APP_ID = "io.github._6rube.nomnomus"
 APP_NAME = "NomNomus"

@@ -1,0 +1,57 @@
+id: io.github._6rube.nomnomus
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: nomnomus
+modules:
+  - name: zbar
+    buildsystem: autotools
+    config-opts:
+      - --disable-static
+      - --disable-video
+      - --disable-doc
+      - --without-gtk
+      - --without-qt
+      - --without-qt5
+      - --without-python
+      - --without-java
+      - --without-imagemagick
+      - --without-dbus
+      - --without-x
+      - --without-xv
+      - --with-introspection=no
+    sources:
+      - type: archive
+        url: https://github.com/mchehab/zbar/archive/refs/tags/0.23.93.tar.gz
+        sha256: 212dfab527894b8bcbcc7cd1d43d63f5604a07473d31a5f02889e372614ebe28
+      - type: script
+        dest-filename: autogen.sh
+        commands:
+          - autoreconf -vfi
+  - name: gst-zbar
+    buildsystem: meson
+    config-opts:
+      - -Dauto_features=disabled
+      - -Dzbar=enabled
+    sources:
+      - type: archive
+        url: https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.26.11.tar.xz
+        sha256: 110fb82795f0e569b1e27b12ab9699d35c7762e1ff4db95335d6ac8d1442af3d
+
+  - name: nomnomus
+    buildsystem: simple
+    build-commands:
+      - pip3 install --no-index --no-deps --no-build-isolation --prefix=/app .
+      - install -Dm644 data/io.github.6rube.nomnomus.desktop /app/share/applications/io.github._6rube.nomnomus.desktop
+      - install -Dm644 data/icons/io.github.6rube.nomnomus.svg /app/share/icons/hicolor/scalable/apps/io.github._6rube.nomnomus.svg
+      - install -Dm644 share/metainfo/io.github.6rube.nomnomus.metainfo.yml /app/share/metainfo/io.github._6rube.nomnomus.metainfo.xml
+    sources:
+      - type: dir
+        path: .
+
+finish-args:
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=all
+  - --share=network

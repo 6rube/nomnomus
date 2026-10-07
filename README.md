@@ -1,4 +1,4 @@
-![Logo](./data/icons/dev.local.NomNomus.svg)
+![Logo](./data/icons/io.github._6rube.nomnomus.svg)
 
 # NomNomus
 
@@ -87,8 +87,8 @@ The over/under totals compare your consumed monthly totals against the target da
 for that month: month-to-date for the current month, or the full month for past months.
 
 To add it to a phone launcher, install the `nomnomus` command and copy
-`data/dev.local.NomNomus.desktop` into `~/.local/share/applications/`. Copy
-`data/icons/dev.local.NomNomus.svg` into
+`data/io.github._6rube.nomnomus.desktop` into `~/.local/share/applications/`. Copy
+`data/icons/io.github._6rube.nomnomus.svg` into
 `~/.local/share/icons/hicolor/scalable/apps/` to install the launcher icon.
 The desktop file launches the installed command.
 
