@@ -42,9 +42,9 @@ modules:
     buildsystem: simple
     build-commands:
       - pip3 install --no-index --no-deps --no-build-isolation --prefix=/app .
-      - install -Dm644 data/io.github.6rube.nomnomus.desktop /app/share/applications/io.github._6rube.nomnomus.desktop
-      - install -Dm644 data/icons/io.github.6rube.nomnomus.svg /app/share/icons/hicolor/scalable/apps/io.github._6rube.nomnomus.svg
-      - install -Dm644 share/metainfo/io.github.6rube.nomnomus.metainfo.yml /app/share/metainfo/io.github._6rube.nomnomus.metainfo.xml
+      - install -Dm644 data/io.github._6rube.nomnomus.desktop /app/share/applications/io.github._6rube.nomnomus.desktop
+      - install -Dm644 data/icons/io.github._6rube.nomnomus.svg /app/share/icons/hicolor/scalable/apps/io.github._6rube.nomnomus.svg
+      - install -Dm644 share/metainfo/io.github._6rube.nomnomus.metainfo.yml /app/share/metainfo/io.github._6rube.nomnomus.metainfo.xml
     sources:
       - type: dir
         path: .
